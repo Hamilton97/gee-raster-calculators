@@ -1,0 +1,9 @@
+black
+black[jupyter]
+build
+twine
+pytest
+pytest-runner
+flake8
+geemap
+ipykernel
