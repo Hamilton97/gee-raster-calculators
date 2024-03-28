@@ -84,3 +84,8 @@ class RasterCalculator:
             return image.addBands(components_image)
 
         return wrapper
+
+    @staticmethod
+    def calculate_ndwi(green: str, nir: str, name: str = None):
+        name = name or "NDWI"
+        return lambda x: x.addBands(x.normalizedDifference([green, nir]).rename(name))

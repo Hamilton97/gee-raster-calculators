@@ -55,3 +55,11 @@ def test_tasseled_cap_calc():
     )
     expected = ["brightness", "greenness", "wetness"]
     assert expected == actual
+
+
+def test_nwdi_calc():
+    calc = RasterCalculator.calculate_ndwi("GREEN", "NIR")
+    img = ee.Image([1, 2]).rename(["GREEN", "NIR"])
+    actual = calc(img).select("NDWI").bandNames().getInfo()
+    expected = ["NDWI"]
+    assert expected == actual
