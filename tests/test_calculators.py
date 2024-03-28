@@ -37,3 +37,21 @@ def test_savi_calc_collection():
     ).map(calc)
 
     collection.select("SAVI").getInfo()
+
+
+def test_tasseled_cap_calc():
+    calc = RasterCalculator()
+    img = ee.Image(list(range(1, 7))).rename(
+        ["green", "blue", "red", "nir", "swir1", "swir2"]
+    )
+
+    actual = (
+        calc.calculate_tasseled_cap("green", "blue", "red", "nir", "swir1", "swir2")(
+            img
+        )
+        .select(["brightness", "greenness", "wetness"])
+        .bandNames()
+        .getInfo()
+    )
+    expected = ["brightness", "greenness", "wetness"]
+    assert expected == actual

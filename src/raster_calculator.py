@@ -56,3 +56,31 @@ class RasterCalculator:
                 },
             ).rename(name)
         )
+
+    @staticmethod
+    def calculate_tasseled_cap(*bands) -> Callable:
+        g, b, r, nir, swir1, swir2 = bands
+
+        def wrapper(image: ee.Image) -> ee.Image:
+            tmp_img = image.select(g, b, r, nir, swir1, swir2)
+            co_array = [
+                [0.3037, 0.2793, 0.4743, 0.5585, 0.5082, 0.1863],
+                [-0.2848, -0.2435, -0.5436, 0.7243, 0.0840, -0.1800],
+                [0.1509, 0.1973, 0.3279, 0.3406, -0.7112, -0.4572],
+            ]
+
+            co = ee.Array(co_array)
+
+            arrayImage1D = tmp_img.toArray()
+            arrayImage2D = arrayImage1D.toArray(1)
+
+            components_image = (
+                ee.Image(co)
+                .matrixMultiply(arrayImage2D)
+                .arrayProject([0])
+                .arrayFlatten([["brightness", "greenness", "wetness"]])
+            )
+
+            return image.addBands(components_image)
+
+        return wrapper
