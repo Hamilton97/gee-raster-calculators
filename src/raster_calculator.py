@@ -144,3 +144,40 @@ class RasterCalculator:
                 {"NIR": x.select(nir), "RED": x.select(red), "BLUE": x.select(blue)},
             ).rename(name)
         )
+
+    @staticmethod
+    def calculate_phase(cos: str, sin: str, name: str = None) -> Callable:
+        """
+        Calculates the phase angle from the given cosine and sine bands.
+
+        Args:
+            cos (str): The name of the cosine band.
+            sin (str): The name of the sine band.
+            name (str, optional): The name of the output band. Defaults to "phase".
+
+        Returns:
+            Callable: A function that calculates the phase angle and adds it as a new band to the input image.
+        """
+        from math import pi
+
+        name = name or "phase"
+        return lambda x: x.addBands(
+            x.select(cos).atan2(x.select(sin)).unitScale(-pi, pi).rename(name)
+        )
+
+    @staticmethod
+    def calculate_amplitude(cos: str, sin: str, name: str = None) -> Callable:
+        """
+        Calculates the amplitude of two raster bands using the cosine and sine bands.
+
+        Args:
+            cos (str): The name of the cosine band.
+            sin (str): The name of the sine band.
+            name (str, optional): The name of the output band. Defaults to "amplitude".
+
+        Returns:
+            Callable: A function that calculates the amplitude of the input raster.
+
+        """
+        name = name or "amplitude"
+        return lambda x: x.addBands(x.select(cos).hypot(x.select(sin)).rename(name))
