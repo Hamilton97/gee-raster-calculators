@@ -24,3 +24,35 @@ class RasterCalculator:
         """
         name = name or "NDVI"
         return lambda x: x.addBands(x.normalizedDifference([nir, red]).rename(name))
+
+    @staticmethod
+    def calculate_savi(
+        nir: str, red: str, l: float = 0.5, name: str = None
+    ) -> Callable:
+        """
+        Calculates the Soil-Adjusted Vegetation Index (SAVI) for a given image.
+
+        Args:
+            nir (str): The name of the Near Infrared (NIR) band.
+            red (str): The name of the Red band.
+            l (float, optional): The SAVI coefficient. Defaults to 0.5.
+            name (str, optional): The name of the output band. Defaults to "SAVI".
+
+        Returns:
+            Callable: A function that calculates the SAVI for a given image.
+
+        Example:
+            savi_calculator = calculate_savi("B8", "B4", l=0.5)
+            savi_image = savi_calculator(image)
+        """
+        name = name or "SAVI"
+        return lambda x: x.addBands(
+            x.expression(
+                "(1 + L) * (NIR - RED) / (NIR + RED + L)",
+                {
+                    "NIR": x.select(nir),
+                    "RED": x.select(red),
+                    "L": l,
+                },
+            ).rename(name)
+        )
