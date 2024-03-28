@@ -59,6 +59,19 @@ class RasterCalculator:
 
     @staticmethod
     def calculate_tasseled_cap(*bands) -> Callable:
+        """
+        Calculates the Tasseled Cap transformation for the given bands.
+
+        Args:
+            *bands: Variable number of bands representing the input image.
+
+        Returns:
+            A function that takes an input image and applies the Tasseled Cap transformation.
+
+        Example:
+            tasseled_cap = calculate_tasseled_cap("blue", "green", "red", "nir", "swir1", "swir2")
+            transformed_image = tasseled_cap(input_image)
+        """
         g, b, r, nir, swir1, swir2 = bands
 
         def wrapper(image: ee.Image) -> ee.Image:
@@ -87,5 +100,21 @@ class RasterCalculator:
 
     @staticmethod
     def calculate_ndwi(green: str, nir: str, name: str = None):
+        """
+        Calculates the Normalized Difference Water Index (NDWI) for a given set of bands.
+
+        Parameters:
+            green (str): The name of the green band.
+            nir (str): The name of the near-infrared band.
+            name (str, optional): The name to assign to the resulting NDWI band. If not provided, defaults to "NDWI".
+
+        Returns:
+            function: A function that takes an ee.Image object and adds the NDWI band to it.
+
+        Example:
+            ndwi_calculator = calculate_ndwi("B3", "B8", "NDWI")
+            image = ee.Image("LANDSAT/LC08/C01/T1_SR/LC08_044034_20140318")
+            result = ndwi_calculator(image)
+        """
         name = name or "NDWI"
         return lambda x: x.addBands(x.normalizedDifference([green, nir]).rename(name))
