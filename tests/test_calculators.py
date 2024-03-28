@@ -63,3 +63,11 @@ def test_nwdi_calc():
     actual = calc(img).select("NDWI").bandNames().getInfo()
     expected = ["NDWI"]
     assert expected == actual
+
+
+def test_evi_calc():
+    calc = RasterCalculator.calculate_evi("NIR", "RED", "BLUE")
+    img = ee.Image([1, 2, 3]).rename(["NIR", "RED", "BLUE"])
+    actual = calc(img).select("EVI").bandNames().getInfo()
+    expected = ["EVI"]
+    assert expected == actual

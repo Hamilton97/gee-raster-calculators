@@ -99,7 +99,7 @@ class RasterCalculator:
         return wrapper
 
     @staticmethod
-    def calculate_ndwi(green: str, nir: str, name: str = None):
+    def calculate_ndwi(green: str, nir: str, name: str = None) -> Callable:
         """
         Calculates the Normalized Difference Water Index (NDWI) for a given set of bands.
 
@@ -118,3 +118,29 @@ class RasterCalculator:
         """
         name = name or "NDWI"
         return lambda x: x.addBands(x.normalizedDifference([green, nir]).rename(name))
+
+    @staticmethod
+    def calculate_evi(nir: str, red: str, blue: str, name: str = None) -> Callable:
+        """
+        Calculates the Enhanced Vegetation Index (EVI) using the given bands.
+
+        Args:
+            nir (str): The name of the Near Infrared (NIR) band.
+            red (str): The name of the Red band.
+            blue (str): The name of the Blue band.
+            name (str, optional): The name to assign to the calculated EVI band. Defaults to "EVI".
+
+        Returns:
+            Callable: A function that can be applied to an image collection to calculate the EVI.
+
+        Example:
+            evi_calculator = calculate_evi("B4", "B3", "B2", "EVI")
+            evi_image = evi_calculator(image_collection)
+        """
+        name = name or "EVI"
+        return lambda x: x.addBands(
+            x.expression(
+                "2.5 * ((NIR - RED) / (NIR + 6 * RED - 7.5 * BLUE + 1))",
+                {"NIR": x.select(nir), "RED": x.select(red), "BLUE": x.select(blue)},
+            ).rename(name)
+        )
